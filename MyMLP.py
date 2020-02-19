@@ -18,7 +18,16 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1):
         # Feed Forward Phase
         ## Count all output
         ### HIDDEN LAYER
+        output_for_hidden = []
+        for i in range(0, hidden_layer_unit):
+            output_for_hidden.append(sigmoid(nett(data_x[idx], weight['hidden-input'][i])))
+        
         ### OUTPUT LAYER
+        output = 0
+        for idx_hidden in range(0, len(output_for_hidden)):
+            output += weight['output-hidden'][idx_hidden] * output_for_hidden[idx_hidden]
+        output += weight['output-hidden'][len(output_for_hidden)] * 1; # ADD BIAS
+        output = sigmoid(output)
 
         # Backward Phase
         ## Count delta
@@ -45,9 +54,9 @@ def initWeight(number_input_unit, number_hidden_unit):
     Initialize weight with 0
 
     the structure weight is divided by 2:
-    1. Hidden-from-input
+    1. Hidden-input
     EX. [[0.4, 0.6],[0.2, 0.3]] which means [0.4, 0.6] is weight for hidden-0 that 0.4 is from input-0 and 0.6 from input-1
-    2. Output-from-hidden
+    2. Output-hidden
     EX. [0.4, 0.5] which means 0.4 is from hidden-0 and 0.5 is from hidden-1
     '''
     weight = dict()
@@ -65,11 +74,11 @@ def nett(data_x, weight):
 
     EX. 
     var data_x = [3,2,5]
-    var weight = [0.3, 0.1, 0.5]
+    var weight = [0.3, 0.1, 0.5, 0.7] # 0.7 is for bias
 
-    nett(data_x, weight) = 3*0.3 + 2*0.1 + 5*0.5 = 3.6
+    nett(data_x, weight) = 3*0.3 + 2*0.1 + 5*0.5 + 0.7 = 4.3 
     '''
-    pass
+    return 0
 
 def sigmoid(nett):
     '''
@@ -80,7 +89,7 @@ def sigmoid(nett):
 
     sigmoid(nett) = 1/(1+e^-nett) = 1/(1+e^(-3.6)) = 0.9734
     '''
-    pass
+    return 0
 
 def deltaO(output, target):
     '''
