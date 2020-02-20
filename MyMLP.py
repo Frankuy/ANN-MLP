@@ -97,7 +97,7 @@ def sigmoid(nett):
 
     sigmoid(nett) = 1/(1+e^-nett) = 1/(1+e^(-3.6)) = 0.9734
     '''
-    return 0
+    return 1/(1+math.e**(-nett))
 
 def deltaO(output, target):
     '''
@@ -145,8 +145,9 @@ def updateWeight(weight, delta_weight):
 
 ##### TESTING #####
 from sklearn.datasets import load_iris
+import math
 
 data = load_iris().data
 target = load_iris().target
 
-MyMLP(data, target, 10, hidden_layer_unit=2)
+print(MyMLP(data, target, 10, hidden_layer_unit=2))
