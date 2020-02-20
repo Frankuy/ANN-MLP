@@ -78,7 +78,15 @@ def nett(data_x, weight):
 
     nett(data_x, weight) = 3*0.3 + 2*0.1 + 5*0.5 + 0.7 = 4.3 
     '''
-    return 0
+    i = 0
+    jumlah = 0
+    for x in data_x:
+        jumlah += x * weight[i]
+        i += 1
+    
+    jumlah += weight[i]
+
+    return jumlah
 
 def sigmoid(nett):
     '''
