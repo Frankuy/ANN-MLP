@@ -21,7 +21,7 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1):
         output_for_hidden = []
         for i in range(0, hidden_layer_unit):
             output_for_hidden.append(sigmoid(nett(data_x[idx], weight['hidden-input'][i])))
-        
+
         ### OUTPUT LAYER
         output = 0
         for idx_hidden in range(0, len(output_for_hidden)):
@@ -106,11 +106,11 @@ def deltaO(output, target):
     EX.
     deltaO(0.7, 0.8) = 0.7*(1-0.7)*(0.8-0.7)
     '''
-    pass
+    return output*(1-output)*(target-output)
 
 def deltaH(output, list_deltaO):
     '''
-    Count delta of an hidden layer unit
+    Count delta of a hidden layer unit
 
     EX.
     
@@ -121,7 +121,7 @@ def deltaWeight(learning_rate, delta, x):
     '''
     Count delta weight using learning_rate*delta*x
     '''
-    pass
+    return learning_rate*delta*x
 
 def calculateError(output, target):
     '''
@@ -129,7 +129,7 @@ def calculateError(output, target):
 
     Error = 1/2(target-output)^2
     '''
-    pass
+    return ((target-output)**2)/2
 
 def predict(model, data_x):
     '''
