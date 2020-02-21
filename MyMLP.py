@@ -1,4 +1,4 @@
-def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1, max_epoch=100000):
+def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, max_epoch=100000):
     '''
     Using mini-batch gradient descent with backpropagation algorithm
     function sigmoid as activation.
@@ -15,7 +15,7 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1, m
     weight = initWeight(len(data_x[0]), hidden_layer_unit)
     error = 999999
     epoch = 1
-    while (error > 0.05 or epoch != max_epoch):
+    while (error > 0.05 and epoch != max_epoch):
         # Initialize delta weight
         delta_weights = initWeight(len(data_x[0]), hidden_layer_unit)
         count_processed_data = 0
@@ -187,4 +187,4 @@ import math
 data = load_iris().data
 target = load_iris().target
 
-MyMLP(data, target, mini_data=1, hidden_layer_unit=100)
+MyMLP(data, target, learning_rate=0.4, mini_data=1, hidden_layer_unit=100, max_epoch=1000)
