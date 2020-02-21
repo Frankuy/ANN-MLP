@@ -1,4 +1,4 @@
-def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1):
+def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1, max_epoch=100000):
     '''
     Using mini-batch gradient descent with backpropagation algorithm
     function sigmoid as activation.
@@ -11,41 +11,84 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.1, hidden_layer_unit=1):
         print("Your data is empty")
         return
 
-    count_processed_data = 0
+    # Initilize weight and error
     weight = initWeight(len(data_x[0]), hidden_layer_unit)
+    error = 999999
+    epoch = 1
+    while (error > 0.05 or epoch != max_epoch):
+        # Initialize delta weight
+        delta_weights = initWeight(len(data_x[0]), hidden_layer_unit)
+        count_processed_data = 0
+        final_output = 0
 
-    for idx in range(0, len(data_x)):
-        # Feed Forward Phase
-        ## Count all output
-        ### HIDDEN LAYER
-        output_for_hidden = []
-        for i in range(0, hidden_layer_unit):
-            output_for_hidden.append(sigmoid(nett(data_x[idx], weight['hidden-input'][i])))
+        print('EPOCH #',epoch)
+        print('ERROR', error)
 
-        ### OUTPUT LAYER
-        output = 0
-        for idx_hidden in range(0, len(output_for_hidden)):
-            output += weight['output-hidden'][idx_hidden] * output_for_hidden[idx_hidden]
-        output += weight['output-hidden'][len(output_for_hidden)] * 1; # ADD BIAS
-        output = sigmoid(output)
+        for idx in range(0, len(data_x)):
+            # Feed Forward Phase
+            ## Count all output
+            ### HIDDEN LAYER
+            output_for_hidden = []
+            for i in range(0, hidden_layer_unit):
+                output_for_hidden.append(sigmoid(nett(data_x[idx], weight['hidden-input'][i])))
 
-        # Backward Phase
-        ## Count delta
-        ### OUTPUT LAYER
-        ### HIDDEN LAYER
+            ### OUTPUT LAYER
+            output = 0
+            for idx_hidden in range(0, len(output_for_hidden)):
+                output += weight['output-hidden'][idx_hidden] * output_for_hidden[idx_hidden]
+            output += weight['output-hidden'][len(output_for_hidden)] * 1 # ADD BIAS
+            output = sigmoid(output)
 
-        # Weight Changer
-        ## Change weight based on delta
-        ### Update delta weight
-        # DELTA_WEIGHT = DELTA_WEIGHT + deltaWeight() 
+            # Backward Phase
+            ## Count delta
+            ### OUTPUT LAYER
+            delta_output = deltaO(output, data_y[idx])
 
-        count_processed_data += 1
-        if idx == len(data_x) - 1 or count_processed_data == mini_data: # Already in last data OR in minimal data for mini-batch
-            count_processed_data = 0
-            ### Use delta weight to update weight
-            # WEIGHT = updateWeight(WEIGHT, DELTA_WEIGHT)
-            ### Reset delta weight
-            # DELTA WEIGHT = [0,0,0,0]
+            ### HIDDEN LAYER
+            delta_hidden = []
+            for i in range(0, hidden_layer_unit):
+                delta_hidden.append(deltaH(output_for_hidden[i], weight['output-hidden'][i], delta_output))
+
+            # Weight Changer
+            ## Update delta weight
+            ### HIDDEN-OUTPUT LAYER
+            for i in range(0, len(delta_weights['hidden-input'])):
+                # Hidden i-th
+                for j in range(0, len(delta_weights['hidden-input'][i])):
+                    # Input j-th to Hidden i-th
+                    if (j == len(delta_weights['hidden-input'][i]) - 1): # BIAS
+                        delta_weights['hidden-input'][i][j] += deltaWeight(learning_rate, delta_hidden[i], 1)    
+                    else: 
+                        delta_weights['hidden-input'][i][j] += deltaWeight(learning_rate, delta_hidden[i], data_x[idx][j])
+
+            ### OUTPUT-HIDDEN LAYER
+            for i in range(0, len(delta_weights['output-hidden'])):
+                # Hidden i-th to output
+                if (i == len(delta_weights['output-hidden']) - 1): # BIAS
+                    delta_weights['output-hidden'][i] += deltaWeight(learning_rate, delta_output, 1)
+                else:
+                    delta_weights['output-hidden'][i] += deltaWeight(learning_rate, delta_output, output_for_hidden[i])
+            
+            count_processed_data += 1
+            if idx == len(data_x) - 1 or count_processed_data == mini_data: # Already in last data OR in minimal data for mini-batch
+                count_processed_data = 0
+                ## Use delta weight to update weight
+                ### OUTPUT-HIDDEN
+                for i in range(0, len(weight['output-hidden'])):
+                    weight['output-hidden'][i] += delta_weights['output-hidden'][i]
+                ### HIDDEN-INPUT
+                for i in range(0, len(weight['hidden-input'])):
+                    for j in range(0, len(weight['hidden-input'][i])):
+                        weight['hidden-input'][i][j] += delta_weights['hidden-input'][i][j]
+
+                delta_weights = initWeight(len(data_x[0]), hidden_layer_unit)
+                if idx == len(data_x) - 1:
+                    final_output = output
+        # END FOR (ALL DATA HAVE BEEN PROCESSED)
+        epoch += 1
+        error = calculateError(final_output, data_y[len(data_y) - 1])
+
+        print(error)
 
     return weight
 
@@ -108,14 +151,14 @@ def deltaO(output, target):
     '''
     return output*(1-output)*(target-output)
 
-def deltaH(output, list_deltaO):
+def deltaH(output, weight, deltaO):
     '''
     Count delta of a hidden layer unit
 
     EX.
-    
+    deltaH = output*(1-output)*(weight*deltaO)
     '''
-    pass
+    return 0
 
 def deltaWeight(learning_rate, delta, x):
     '''
@@ -137,12 +180,6 @@ def predict(model, data_x):
     '''
     pass
 
-def updateWeight(weight, delta_weight):
-    '''
-    Update current weight added with delta_weight
-    '''
-    pass
-
 ##### TESTING #####
 from sklearn.datasets import load_iris
 import math
@@ -150,4 +187,4 @@ import math
 data = load_iris().data
 target = load_iris().target
 
-print(MyMLP(data, target, 10, hidden_layer_unit=2))
+MyMLP(data, target, mini_data=1, hidden_layer_unit=100)
