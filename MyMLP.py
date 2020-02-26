@@ -1,3 +1,5 @@
+import numpy as np
+
 def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, max_epoch=100000):
     '''
     Using mini-batch gradient descent with backpropagation algorithm
@@ -92,7 +94,7 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, m
 
 def initWeight(number_input_unit, number_hidden_unit):
     '''
-    Initialize weight with 0
+    Initialize weight by random number in range [0..1]
 
     the structure weight is divided by 2:
     1. Hidden-input
@@ -101,9 +103,11 @@ def initWeight(number_input_unit, number_hidden_unit):
     EX. [0.4, 0.5] which means 0.4 is from hidden-0 and 0.5 is from hidden-1
     '''
     weight = dict()
-    weight_hidden_input = [0 for i in range(0, number_input_unit + 1)] # + 1 for bias
+    weight_hidden_input = list(np.random.uniform(size=number_input_unit))
+    weight_hidden_input.append(0) # add 1 zero weight for bias
     weight['hidden-input'] = [weight_hidden_input for i in range(0, number_hidden_unit)]
-    weight_output_hidden = [0 for i in range(0, number_hidden_unit + 1)] # + 1 for bias
+    weight_output_hidden = list(np.random.uniform(size=number_hidden_unit))
+    weight_output_hidden.append(0) # add 1 zero weight for bias
     weight['output-hidden'] = weight_output_hidden
 
     return weight
@@ -176,7 +180,6 @@ def predict(model, data_x):
     '''
     Predict the output using model that contains weight
     '''
-
     pass
 
 ##### TESTING #####
@@ -186,6 +189,4 @@ import math
 data = load_iris().data
 target = load_iris().target
 
-weight = MyMLP(data, target, learning_rate=0.4, mini_data=100, hidden_layer_unit=20, max_epoch=100)
-# output = predict(weight, data)
-print(weight)
+weight = MyMLP(data, target, learning_rate=0.4, mini_data=len(data), hidden_layer_unit=20, max_epoch=1000)
