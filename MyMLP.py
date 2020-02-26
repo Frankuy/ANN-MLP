@@ -88,8 +88,6 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, m
         epoch += 1
         error = calculateError(final_output, data_y[len(data_y) - 1])
 
-        print(error)
-
     return weight
 
 def initWeight(number_input_unit, number_hidden_unit):
@@ -158,7 +156,7 @@ def deltaH(output, weight, deltaO):
     EX.
     deltaH = output*(1-output)*(weight*deltaO)
     '''
-    return 0
+    return output*(1-output)*(weight*deltaO)
 
 def deltaWeight(learning_rate, delta, x):
     '''
@@ -178,6 +176,7 @@ def predict(model, data_x):
     '''
     Predict the output using model that contains weight
     '''
+
     pass
 
 ##### TESTING #####
@@ -187,4 +186,6 @@ import math
 data = load_iris().data
 target = load_iris().target
 
-MyMLP(data, target, learning_rate=0.4, mini_data=1, hidden_layer_unit=100, max_epoch=1000)
+weight = MyMLP(data, target, learning_rate=0.4, mini_data=100, hidden_layer_unit=20, max_epoch=100)
+# output = predict(weight, data)
+print(weight)
