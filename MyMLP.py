@@ -1,6 +1,8 @@
 import numpy as np
 
-def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100, output_layer_unit=2, max_epoch=100000):
+def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, 
+            hidden_layer_unit=100, output_layer_unit=2, max_epoch=100000,
+            acceptable_error = 0.0005):
     '''
     Using mini-batch gradient descent with backpropagation algorithm
     function sigmoid as activation.
@@ -18,11 +20,14 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
     weight = initWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
     error = 999999
     epoch = 1
-    while (error > 0.05 and epoch != max_epoch):
+    while (error > acceptable_error and epoch != max_epoch):
         # Initialize delta weight
         delta_weights = initDeltaWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
         count_processed_data = 0
         final_output = 0
+
+        print('EPOCH #',epoch)
+        print('ERROR', error)
 
         for idx in range(0, len(data_x)):
             # Feed Forward Phase
@@ -93,8 +98,6 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
                         weight['hidden-input'][i][j] += delta_weights['hidden-input'][i][j]
 
                 delta_weights = initDeltaWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
-                # if idx == len(data_x) - 1:
-                #     final_output = output
                 error = calculateError(output, data_y[idx])
         # END FOR (ALL DATA HAVE BEEN PROCESSED)
         epoch += 1
@@ -117,14 +120,14 @@ def initWeight(number_input_unit, number_hidden_unit, number_output_unit):
     weight = dict()
     weight_hidden_input = list()
     for i in range(0, number_hidden_unit):
-        local_weight = list(np.random.uniform(size=number_input_unit))
+        local_weight = list(np.random.uniform(low=0.0, high=0.1, size=number_input_unit))
         local_weight.append(0) # add 1 zero weight for bias
         weight_hidden_input.append(local_weight)
     weight['hidden-input'] = weight_hidden_input
 
     weight_output_hidden = list()
     for i in range(0, number_output_unit):
-        local_weight = list(np.random.uniform(size=number_hidden_unit))
+        local_weight = list(np.random.uniform(low=0.0, high=0.1, size=number_hidden_unit))
         local_weight.append(0) # add 1 zero weight for bias
         weight_output_hidden.append(local_weight)
     weight['output-hidden'] = weight_output_hidden
@@ -238,11 +241,7 @@ def predict(model, data_x):
 
 def predict_one(model, row):
     '''
-    Predict the output of multiple data using model that contains weight
-    1. Hidden-input
-    EX. [[0.4, 0.6],[0.2, 0.3]] which means [0.4, 0.6] is weight for hidden-0 that 0.4 is from input-0 and 0.6 from input-1
-    2. Output-hidden
-    EX. [[0.4, 0.5], [0.3, 0.7]] which means 0.4 is from hidden-0 to output-0 and 0.3 is from hidden-0 to output 1
+    Predict the output of a single data using defined model
     '''
 
     # Calculate output for hidden layer first
@@ -256,7 +255,6 @@ def predict_one(model, row):
     for output_weights in model['output-hidden']:
         nett_output = nett(output_hidden_nodes, output_weights)
         output_layers.append(sigmoid(nett_output))
-    print('output layers', output_layers)
     max_proba = max(output_layers)
     max_output = output_layers.index(max_proba)
 
@@ -271,9 +269,8 @@ import math
 
 data = load_iris().data
 target = load_iris().target
-print('actual target', target[0])
 number_unique_output = len(np.unique(target))
 
-weight = MyMLP(data[0:100], target, learning_rate=0.4, mini_data=1, hidden_layer_unit=3, output_layer_unit=number_unique_output, max_epoch=100000)
-out = predict(weight, data[0:100])
+weight = MyMLP(data, target, learning_rate=0.1, mini_data=3, hidden_layer_unit=100, output_layer_unit=number_unique_output, max_epoch=1000)
+out = predict(weight, data)
 print('predicted output', out)
