@@ -16,13 +16,11 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
 
     # Initilize weight and error
     weight = initWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
-    print(weight)
-    return
     error = 999999
     epoch = 1
     while (error > 0.05 and epoch != max_epoch):
         # Initialize delta weight
-        delta_weights = initWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
+        delta_weights = initDeltaWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
         count_processed_data = 0
         final_output = 0
 
@@ -121,6 +119,22 @@ def initWeight(number_input_unit, number_hidden_unit, number_output_unit):
     weight['output-hidden'] = weight_output_hidden
 
     return weight
+
+def initDeltaWeight(number_input_unit, number_hidden_unit, number_output_unit):
+    delta_weight = dict()
+    weight_hidden_input = list()
+    for i in range(0, number_hidden_unit):
+        local_weight = list(np.zeros(shape=number_input_unit + 1)) # add 1 zero weight for bias
+        weight_hidden_input.append(local_weight)
+    delta_weight['hidden-input'] = weight_hidden_input
+
+    weight_output_hidden = list()
+    for i in range(0, number_output_unit):
+        local_weight = list(np.zeros(shape=number_hidden_unit + 1)) # add 1 zero weight for bias
+        weight_output_hidden.append(local_weight)
+    delta_weight['output-hidden'] = weight_output_hidden
+
+    return delta_weight
         
 
 def nett(data_x, weight):
