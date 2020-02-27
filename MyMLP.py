@@ -24,9 +24,6 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
         count_processed_data = 0
         final_output = 0
 
-        print('EPOCH #',epoch)
-        print('ERROR', error)
-
         for idx in range(0, len(data_x)):
             # Feed Forward Phase
             ## Count all output
@@ -96,11 +93,14 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
                         weight['hidden-input'][i][j] += delta_weights['hidden-input'][i][j]
 
                 delta_weights = initDeltaWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
-                if idx == len(data_x) - 1:
-                    final_output = output
+                # if idx == len(data_x) - 1:
+                #     final_output = output
+                error = calculateError(output, data_y[idx])
         # END FOR (ALL DATA HAVE BEEN PROCESSED)
         epoch += 1
-        error = calculateError(final_output, data_y[len(data_y) - 1])
+
+    print('EPOCH #',epoch)
+    print('ERROR', error)
 
     return weight
 
@@ -225,9 +225,45 @@ def calculateError(output, target):
 
 def predict(model, data_x):
     '''
-    Predict the output using model that contains weight
+    Predict the output of multiple data using model that contains weight
     '''
-    pass
+
+    solutions = []
+    for row in data_x:
+        solutions.append(predict_one(model, row))
+
+    return solutions
+
+    
+
+def predict_one(model, row):
+    '''
+    Predict the output of multiple data using model that contains weight
+    1. Hidden-input
+    EX. [[0.4, 0.6],[0.2, 0.3]] which means [0.4, 0.6] is weight for hidden-0 that 0.4 is from input-0 and 0.6 from input-1
+    2. Output-hidden
+    EX. [[0.4, 0.5], [0.3, 0.7]] which means 0.4 is from hidden-0 to output-0 and 0.3 is from hidden-0 to output 1
+    '''
+
+    # Calculate output for hidden layer first
+    output_hidden_nodes = []
+    for hidden_node_weights in model['hidden-input']:
+        nett_hidden_node = nett(row, hidden_node_weights)
+        output_hidden_nodes.append(sigmoid(nett_hidden_node))
+
+    # Calculate output for output layer
+    output_layers = []
+    for output_weights in model['output-hidden']:
+        nett_output = nett(output_hidden_nodes, output_weights)
+        output_layers.append(sigmoid(nett_output))
+    print('output layers', output_layers)
+    max_proba = max(output_layers)
+    max_output = output_layers.index(max_proba)
+
+    return max_output
+
+
+    
 
 ##### TESTING #####
 from sklearn.datasets import load_iris
@@ -235,6 +271,9 @@ import math
 
 data = load_iris().data
 target = load_iris().target
+print('actual target', target[0])
 number_unique_output = len(np.unique(target))
 
-weight = MyMLP(data, target, learning_rate=0.4, mini_data=20, hidden_layer_unit=4, output_layer_unit=number_unique_output, max_epoch=100000)
+weight = MyMLP(data[0:100], target, learning_rate=0.4, mini_data=1, hidden_layer_unit=3, output_layer_unit=number_unique_output, max_epoch=100000)
+out = predict(weight, data[0:100])
+print('predicted output', out)
