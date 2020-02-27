@@ -34,14 +34,19 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
             output_for_hidden = []
             for i in range(0, hidden_layer_unit):
                 output_for_hidden.append(sigmoid(nett(data_x[idx], weight['hidden-input'][i])))
-
+            
             ### OUTPUT LAYER
-            output = 0
-            for idx_hidden in range(0, len(output_for_hidden)):
-                output += weight['output-hidden'][idx_hidden] * output_for_hidden[idx_hidden]
-            output += weight['output-hidden'][len(output_for_hidden)] * 1 # ADD BIAS
-            output = sigmoid(output)
+            output = []
+            for idx_output in range(0, output_layer_unit):
+                local_output = 0
+                for idx_hidden in range(0, len(output_for_hidden)):
+                    local_output += weight['output-hidden'][idx_output][idx_hidden] * output_for_hidden[idx_hidden]
+                local_output += weight['output-hidden'][idx_output][len(output_for_hidden)] * 1 # ADD BIAS
+                local_output = sigmoid(local_output)
+                output.append(local_output)
 
+            print(output)
+            return
             # Backward Phase
             ## Count delta
             ### OUTPUT LAYER
@@ -212,5 +217,6 @@ import math
 
 data = load_iris().data
 target = load_iris().target
+number_unique_output = len(np.unique(target))
 
-weight = MyMLP(data, target, learning_rate=0.4, mini_data=len(data), hidden_layer_unit=2, output_layer_unit=2, max_epoch=1000)
+weight = MyMLP(data, target, learning_rate=0.4, mini_data=len(data), hidden_layer_unit=2, output_layer_unit=number_unique_output, max_epoch=1000)
