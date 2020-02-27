@@ -1,9 +1,10 @@
 import numpy as np
 
-def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, max_epoch=100000):
+def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100, output_layer_unit=2, max_epoch=100000):
     '''
     Using mini-batch gradient descent with backpropagation algorithm
     function sigmoid as activation.
+    output layer unit should same as number of unique data in data_y
 
     RETURN model (weight of the MLP)
     '''
@@ -14,12 +15,14 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, m
         return
 
     # Initilize weight and error
-    weight = initWeight(len(data_x[0]), hidden_layer_unit)
+    weight = initWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
+    print(weight)
+    return
     error = 999999
     epoch = 1
     while (error > 0.05 and epoch != max_epoch):
         # Initialize delta weight
-        delta_weights = initWeight(len(data_x[0]), hidden_layer_unit)
+        delta_weights = initWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
         count_processed_data = 0
         final_output = 0
 
@@ -92,7 +95,7 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=1, m
 
     return weight
 
-def initWeight(number_input_unit, number_hidden_unit):
+def initWeight(number_input_unit, number_hidden_unit, number_output_unit):
     '''
     Initialize weight by random number in range [0..1]
 
@@ -100,14 +103,21 @@ def initWeight(number_input_unit, number_hidden_unit):
     1. Hidden-input
     EX. [[0.4, 0.6],[0.2, 0.3]] which means [0.4, 0.6] is weight for hidden-0 that 0.4 is from input-0 and 0.6 from input-1
     2. Output-hidden
-    EX. [0.4, 0.5] which means 0.4 is from hidden-0 and 0.5 is from hidden-1
+    EX. [[0.4, 0.5], [0.3, 0.7]] which means 0.4 is from hidden-0 to output-0 and 0.3 is from hidden-0 to output 1
     '''
     weight = dict()
-    weight_hidden_input = list(np.random.uniform(size=number_input_unit))
-    weight_hidden_input.append(0) # add 1 zero weight for bias
-    weight['hidden-input'] = [weight_hidden_input for i in range(0, number_hidden_unit)]
-    weight_output_hidden = list(np.random.uniform(size=number_hidden_unit))
-    weight_output_hidden.append(0) # add 1 zero weight for bias
+    weight_hidden_input = list()
+    for i in range(0, number_hidden_unit):
+        local_weight = list(np.random.uniform(size=number_input_unit))
+        local_weight.append(0) # add 1 zero weight for bias
+        weight_hidden_input.append(local_weight)
+    weight['hidden-input'] = weight_hidden_input
+
+    weight_output_hidden = list()
+    for i in range(0, number_output_unit):
+        local_weight = list(np.random.uniform(size=number_hidden_unit))
+        local_weight.append(0) # add 1 zero weight for bias
+        weight_output_hidden.append(local_weight)
     weight['output-hidden'] = weight_output_hidden
 
     return weight
@@ -189,4 +199,4 @@ import math
 data = load_iris().data
 target = load_iris().target
 
-weight = MyMLP(data, target, learning_rate=0.4, mini_data=len(data), hidden_layer_unit=20, max_epoch=1000)
+weight = MyMLP(data, target, learning_rate=0.4, mini_data=len(data), hidden_layer_unit=2, output_layer_unit=2, max_epoch=1000)
