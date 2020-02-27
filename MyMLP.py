@@ -45,12 +45,15 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
                 local_output = sigmoid(local_output)
                 output.append(local_output)
 
-            print(output)
-            return
             # Backward Phase
             ## Count delta
             ### OUTPUT LAYER
-            delta_output = deltaO(output, data_y[idx])
+            delta_output = []
+            for i in range(0, output_layer_unit):
+                if (data_y[idx] == i): # Class value is equal to output i-th, which means the actual target is 1
+                    delta_output.append(deltaO(output[i], 1))
+                else:
+                    delta_output.append(deltaO(output[i], 0))
 
             ### HIDDEN LAYER
             delta_hidden = []
