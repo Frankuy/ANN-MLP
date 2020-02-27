@@ -77,7 +77,7 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
                 # Output ke i-th 
                 for j in range(0, len(delta_weights['output-hidden'][i])):
                     # Hidden j-th to Output i-th
-                    if (j == len(delta_weights['output-hidden']) - 1): # BIAS
+                    if (j == len(delta_weights['output-hidden'][i]) - 1): # BIAS
                         delta_weights['output-hidden'][i][j] += deltaWeight(learning_rate, delta_output[i], 1)
                     else:
                         delta_weights['output-hidden'][i][j] += deltaWeight(learning_rate, delta_output[i], output_for_hidden[j])
@@ -214,7 +214,14 @@ def calculateError(output, target):
 
     Error = 1/2(target-output)^2
     '''
-    return ((target-output)**2)/2
+    total_error = 0
+    for idx_output in range(0, len(output)):
+        if (target == idx_output):
+            total_error += ((1-output[idx_output])**2)/2
+        else:
+            total_error += ((0-output[idx_output])**2)/2
+
+    return total_error
 
 def predict(model, data_x):
     '''
@@ -230,4 +237,4 @@ data = load_iris().data
 target = load_iris().target
 number_unique_output = len(np.unique(target))
 
-weight = MyMLP(data, target, learning_rate=0.4, mini_data=len(data), hidden_layer_unit=2, output_layer_unit=number_unique_output, max_epoch=1000)
+weight = MyMLP(data, target, learning_rate=0.4, mini_data=20, hidden_layer_unit=4, output_layer_unit=number_unique_output, max_epoch=100000)
