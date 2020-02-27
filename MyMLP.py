@@ -62,7 +62,7 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
 
             # Weight Changer
             ## Update delta weight
-            ### HIDDEN-OUTPUT LAYER
+            ### HIDDEN-INPUT LAYER
             for i in range(0, len(delta_weights['hidden-input'])):
                 # Hidden i-th
                 for j in range(0, len(delta_weights['hidden-input'][i])):
@@ -74,11 +74,13 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
 
             ### OUTPUT-HIDDEN LAYER
             for i in range(0, len(delta_weights['output-hidden'])):
-                # Hidden i-th to output
-                if (i == len(delta_weights['output-hidden']) - 1): # BIAS
-                    delta_weights['output-hidden'][i] += deltaWeight(learning_rate, delta_output, 1)
-                else:
-                    delta_weights['output-hidden'][i] += deltaWeight(learning_rate, delta_output, output_for_hidden[i])
+                # Output ke i-th 
+                for j in range(0, len(delta_weights['output-hidden'][i])):
+                    # Hidden j-th to Output i-th
+                    if (j == len(delta_weights['output-hidden']) - 1): # BIAS
+                        delta_weights['output-hidden'][i][j] += deltaWeight(learning_rate, delta_output[i], 1)
+                    else:
+                        delta_weights['output-hidden'][i][j] += deltaWeight(learning_rate, delta_output[i], output_for_hidden[j])
             
             count_processed_data += 1
             if idx == len(data_x) - 1 or count_processed_data == mini_data: # Already in last data OR in minimal data for mini-batch
@@ -86,13 +88,14 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
                 ## Use delta weight to update weight
                 ### OUTPUT-HIDDEN
                 for i in range(0, len(weight['output-hidden'])):
-                    weight['output-hidden'][i] += delta_weights['output-hidden'][i]
+                    for j in range(0, len(weight['output-hidden'][i])):
+                        weight['output-hidden'][i][j] += delta_weights['output-hidden'][i][j]
                 ### HIDDEN-INPUT
                 for i in range(0, len(weight['hidden-input'])):
                     for j in range(0, len(weight['hidden-input'][i])):
                         weight['hidden-input'][i][j] += delta_weights['hidden-input'][i][j]
 
-                delta_weights = initWeight(len(data_x[0]), hidden_layer_unit)
+                delta_weights = initDeltaWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
                 if idx == len(data_x) - 1:
                     final_output = output
         # END FOR (ALL DATA HAVE BEEN PROCESSED)
