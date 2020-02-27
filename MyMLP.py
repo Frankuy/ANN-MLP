@@ -57,8 +57,8 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, hidden_layer_unit=100,
 
             ### HIDDEN LAYER
             delta_hidden = []
-            for i in range(0, hidden_layer_unit):
-                delta_hidden.append(deltaH(output_for_hidden[i], weight['output-hidden'][i], delta_output))
+            for idx_hidden in range(0, hidden_layer_unit):
+                delta_hidden.append(deltaH(output_for_hidden[idx_hidden], weight['output-hidden'], delta_output, idx_hidden))
 
             # Weight Changer
             ## Update delta weight
@@ -185,14 +185,19 @@ def deltaO(output, target):
     '''
     return output*(1-output)*(target-output)
 
-def deltaH(output, weight, deltaO):
+def deltaH(output, weight, deltaO, index_hidden):
     '''
     Count delta of a hidden layer unit
 
     EX.
-    deltaH = output*(1-output)*(weight*deltaO)
+    deltaH = output*(1-output)*sigma
+    where sigma = sum(weight[index_output][index_hidden]*deltaO[index_output])
     '''
-    return output*(1-output)*(weight*deltaO)
+    sigma = 0
+    for idx_output in range(0, len(deltaO)):
+        sigma += weight[idx_output][index_hidden]*deltaO[idx_output]
+
+    return output*(1-output)*sigma
 
 def deltaWeight(learning_rate, delta, x):
     '''
