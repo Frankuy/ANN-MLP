@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4, 
@@ -25,9 +26,6 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4,
         delta_weights = initDeltaWeight(len(data_x[0]), hidden_layer_unit, output_layer_unit)
         count_processed_data = 0
         final_output = 0
-
-        print('EPOCH #',epoch)
-        print('ERROR', error)
 
         for idx in range(0, len(data_x)):
             # Feed Forward Phase
@@ -101,9 +99,6 @@ def MyMLP(data_x, data_y, mini_data=1, learning_rate=0.4,
                 error = calculateError(output, data_y[idx])
         # END FOR (ALL DATA HAVE BEEN PROCESSED)
         epoch += 1
-
-    print('EPOCH #',epoch)
-    print('ERROR', error)
 
     return weight
 
@@ -259,18 +254,3 @@ def predict_one(model, row):
     max_output = output_layers.index(max_proba)
 
     return max_output
-
-
-    
-
-##### TESTING #####
-from sklearn.datasets import load_iris
-import math
-
-data = load_iris().data
-target = load_iris().target
-number_unique_output = len(np.unique(target))
-
-weight = MyMLP(data, target, learning_rate=0.1, mini_data=3, hidden_layer_unit=100, output_layer_unit=number_unique_output, max_epoch=1000)
-out = predict(weight, data)
-print('predicted output', out)
